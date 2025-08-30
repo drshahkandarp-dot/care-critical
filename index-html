@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="app-title">Care Critical</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* General body and container styling */
+        body {
+            font-family: "Inter", sans-serif; background-color: #f0f4f8; /* Lighter blue-gray background */
+            padding: 20px;
+            display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; color: #333;
+        }
+        .app-container { /* Renamed for clarity */
+            width: 100%; max-width: 900px; /* Slightly wider for portal view */
+            margin: 20px auto;
+            background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Login Section Styling */
+        #login-section { text-align: center; padding: 40px 0; }
+        #login-section h2 { margin-bottom: 30px; font-size: 1.8em; color: #1a202c; }
+        #login-section button { margin: 10px; min-width: 180px; }
+
+        /* Portal Specific Styling */
+        .portal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 15px; margin-bottom: 25px; border-bottom: 1px solid #e2e8f0;
+        }
+        .portal-header h2 { font-size: 1.75em; color: #2c5282; } /* Deeper blue for portal titles */
+        .portal-nav button, .portal-nav a { margin-left: 10px; }
+
+
+        /* Dashboard Styling */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .dashboard-card {
+            background-color: #f7fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .dashboard-card h3 { font-size: 1.25em; color: #2d3748; margin-bottom: 15px; }
+        .dashboard-card p { font-size: 0.95em; color: #4a5568; margin-bottom: 15px; }
+        .dashboard-card button { background-color: #3182ce; width: 100%; } /* Blue buttons for actions */
+        .dashboard-card button:hover { background-color: #2b6cb0; }
+
+
+        /* Health News Styling */
+        #health-news-feed-container {
+            max-height: 350px; overflow-y: auto; padding: 15px;
+            border: 1px solid #e2e8f0; border-radius: 8px; background-color: #fff;
+        }
+        .news-item { margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px dashed #cbd5e0;}
+        .news-item:last-child { border-bottom: none; }
+        .news-item h4 { font-size: 1.1em; margin-bottom: 5px; color: #2c5282; }
+        .news-item h4 a { color: #2c5282; text-decoration: none; }
+        .news-item h4 a:hover { text-decoration: underline; }
+        .news-item p { font-size: 0.9em; color: #4a5568; line-height: 1.5; }
+
+
+        /* Physician Portal Patient List */
+        .patient-list-item { /* This might be repurposed or removed for search */
+            padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 8px;
+            cursor: pointer; transition: background-color 0.2s;
+        }
+        .patient-list-item:hover { background-color: #edf2f7; }
+        #physician-patient-detail-view { margin-top: 20px; padding: 15px; background-color: #f7fafc; border-radius: 8px;}
+
+
+        /* Form elements styling - No change from original */
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #4A5568; }
+        input[type="text"], input[type="number"], input[type="file"], select, textarea, input[type="checkbox"] { /* Added checkbox */
+            width: 100%; padding: 12px; border: 1px solid #CBD5E0;
+            border-radius: 8px; box-sizing: border-box; font-size: 1rem;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        input[type="checkbox"] { width: auto; margin-right: 8px; vertical-align: middle;} /* Style for checkboxes */
+        input[type="file"] { padding: 8px; }
+        input[type="text"]:focus, input[type="number"]:focus, input[type="file"]:focus, select:focus, textarea:focus {
+            border-color: #3182ce; box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.25); outline: none;
+        }
+        textarea { min-height: 60px; resize: vertical; }
+
+        /* Button styling - Adjusted primary color */
+        button, .map-link-button {
+            background-color: #3182ce; color: white !important;
+            padding: 12px 24px;
+            border: none; border-radius: 8px; cursor: pointer; font-size: 1rem;
+            font-weight: 500; transition: background-color 0.2s ease, transform 0.1s ease;
+            margin-right: 10px; margin-top: 10px; text-decoration: none;
+            display: inline-block;
+        }
+        button:hover, .map-link-button:hover {
+            background-color: #2b6cb0; transform: translateY(-1px);
+            text-decoration: none;
+        }
+        button:active, .map-link-button:active { transform: translateY(0px); }
+
+        .button-secondary, .map-link-button.button-secondary {
+            background-color: #6c757d;
+        }
+        .button-secondary:hover, .map-link-button.button-secondary:hover {
+            background-color: #5a6268;
+        }
+        .button-danger { background-color: #e53e3e; } /* Tailwind red */
+        .button-danger:hover { background-color: #c53030; }
+        .lang-toggle-btn-style {
+            font-size: 0.875rem; padding: 0.6rem 1rem; background-color: #f8f9fa;
+            color: #495057 !important; border: 1px solid #dee2e6;
+        }
+        .lang-toggle-btn-style:hover { background-color: #e9ecef; }
+
+        /* Utility and Acuity styling - No change */
+        .hidden { display: none; }
+        .acuity-result { margin-top: 25px; padding: 20px; border-radius: 8px; border-left-width: 5px; }
+        .low-acuity { background-color: #e6fffa; color: #086F6F; border-left-color: #38B2AC; }
+        .medium-acuity { background-color: #fffbeb; color: #94740A; border-left-color: #FBBF24; }
+        .high-acuity { background-color: #fff5f5; color: #C53030; border-left-color: #F56565; }
+
+        /* Message box (modal) styling - No change */
+        #message-box-wrapper {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+        }
+        #message-box-wrapper:not(.hidden) { opacity: 1; pointer-events: auto; }
+        #message-box-content {
+            background-color: white; padding: 30px; border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: center;
+            max-width: 90%; width: 450px; transform: scale(0.95); transition: transform 0.3s ease;
+        }
+        #message-box-wrapper:not(.hidden) #message-box-content { transform: scale(1); }
+        #message-box-content button { margin-top: 20px; }
+
+        /* PCP Info, Self-Care Advice, Body Diagram styling - No change */
+        .info-section {
+            margin-top: 20px; padding: 15px; background-color: #f8f9fa;
+            border-radius: 8px; font-size: 0.95em; color: #495057; border: 1px solid #dee2e6;
+        }
+        #medium-acuity-resource-suggestions .resource-item { margin-bottom: 10px; }
+        #self-care-advice-content p { margin-bottom: 0.75em; line-height: 1.6; }
+        #self-care-advice-content strong { color: #333; }
+        #self-care-disclaimer { font-size: 0.85em; color: #6c757d; margin-top: 15px; }
+        .urgent-care-details { margin-top:15px; font-size: 0.95em; }
+        h1, h2 { color: #2D3748; }
+        h1 { font-weight: 700; } h2 { font-weight: 600; }
+        h3 { font-size: 1.15em; margin-bottom: 0.75em; color: #2D3748; font-weight: 600;}
+
+        #body-diagram-svg-container {
+            width: 100%; max-width: 400px; margin: 20px auto; border: 1px solid #ccc;
+            background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;
+            min-height: 300px; text-align: center; cursor: pointer;
+        }
+        #body-diagram-svg-container svg path:hover { fill-opacity: 0.7; stroke: #007bff; stroke-width: 2px; }
+        .question-navigation-buttons { margin-top: 20px; display: flex; justify-content: space-between; }
+        .profile-actions { margin-top: 20px; display: flex; justify-content: space-between; align-items: center;}
+
+        .insurance-card-preview {
+            max-width: 200px; max-height: 120px; border: 1px solid #ddd;
+            border-radius: 4px; margin-top: 5px; object-fit: contain;
+        }
+        .map-links-container { margin-top: 15px; }
+        /* Styles for sharing management list items */
+        #manage-sharing-container ul { list-style: none; padding: 0; }
+        #manage-sharing-container li {
+            background-color: #e9ecef; padding: 10px; border-radius: 6px; margin-bottom: 8px;
+        }
+        #manage-sharing-container li strong { color: #2c5282; }
+        #manage-sharing-container li small { color: #4a5568; display: block; }
+        #manage-sharing-container .button-danger {
+            font-size: 0.8em; padding: 4px 8px; margin-top: 5px; margin-right: 0;
+        }
+    </style>
+</head>
+<body data-translate-applied="false">
+
+    <div class="app-container">
+        <div class="text-right mb-4">
+            <button id="lang-toggle-btn" class="lang-toggle-btn-style">Cambiar a Español</button>
+        </div>
+        <h1 id="main-title" class="text-3xl font-bold mb-8 text-center">Care Critical</h1>
+
+        <div id="login-section">
+            <h2 id="login-header">Select Your Role</h2>
+            <button id="btn-login-patient" onclick="loginAsPatient()">Patient Portal</button>
+            <button id="btn-login-physician" onclick="loginAsPhysician()" class="button-secondary">Physician Portal</button>
+        </div>
+
+        <div id="patient-portal-section" class="hidden">
+            <div class="portal-header">
+                <h2 id="patient-portal-header">Patient Portal</h2>
+                <div class="portal-nav">
+                    <button id="btn-patient-dashboard" onclick="showPatientDashboard()" class="button-secondary">Dashboard</button>
+                    <button id="btn-logout-patient" onclick="logout()" class="button-danger">Logout</button>
+                </div>
+            </div>
+
+            <div id="patient-dashboard-section" class="dashboard-grid">
+                 <div class="dashboard-card">
+                    <h3 id="patient-dashboard-profile-header">Your Profile</h3>
+                    <p id="patient-dashboard-profile-message">Manage your personal and medical information.</p>
+                    <div id="patient-profile-load-options">
+                        {/* Buttons like "Start Symptom Check", "Edit Profile", "Create Profile" will be dynamically added here by JS */}
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3 id="patient-dashboard-symptom-header">Symptom Checker</h3>
+                    <p>Experiencing symptoms? Start a quick check to assess acuity.</p>
+                    <button id="btn-goto-symptom-check" onclick="startSymptomCheckFromDashboard()">Start Symptom Check</button>
+                </div>
+
+                <div class="dashboard-card" style="grid-column: span 2 / span 2;"> {/* Spans two columns if possible */}
+                    <h3 id="patient-dashboard-news-header">Latest Health News</h3>
+                    <div id="health-news-feed-container">
+                        <p>Loading health news...</p>
+                    </div>
+                    <small class="mt-2 block text-xs text-gray-500">News provided for informational purposes. Always consult your doctor for medical advice.</small>
+                </div>
+            </div>
+
+
+            <div id="profile-section" class="hidden">
+                <h2 id="profile-section-header" class="text-2xl font-semibold mb-6">Your Profile</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="patient-name" id="label-patient-name">Full Name:</label>
+                        <input type="text" id="patient-name" data-placeholder-key="placeholderPatientName">
+                    </div>
+                    <div class="form-group">
+                        <label for="patient-age" id="label-patient-age">Age:</label>
+                        <input type="number" id="patient-age" data-placeholder-key="placeholderPatientAge">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="patient-pmh" id="label-patient-pmh">Past Medical History (comma-separated):</label>
+                    <textarea id="patient-pmh" data-placeholder-key="placeholderPatientPMH"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="patient-psh" id="label-patient-psh">Past Surgical History (comma-separated):</label>
+                    <textarea id="patient-psh" data-placeholder-key="placeholderPatientPSH"></textarea>
+                </div>
+                 <div class="form-group">
+                    <label for="patient-medications" id="label-patient-medications">Current Medications (comma-separated):</label>
+                    <textarea id="patient-medications" data-placeholder-key="placeholderPatientMedications"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="patient-allergies" id="label-patient-allergies">Known Allergies (comma-separated):</label>
+                    <textarea id="patient-allergies" data-placeholder-key="placeholderPatientAllergies"></textarea>
+                </div>
+                <h3 class="text-xl font-semibold mt-6 mb-3" id="subhead-pcp-info">PCP Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="pcp-name" id="label-pcp-name">PCP Name:</label>
+                        <input type="text" id="pcp-name" data-placeholder-key="placeholderPcpName">
+                    </div>
+                    <div class="form-group">
+                        <label for="pcp-contact" id="label-pcp-contact">PCP Contact:</label>
+                        <input type="text" id="pcp-contact" data-placeholder-key="placeholderPcpContact">
+                    </div>
+                </div>
+                <h3 class="text-xl font-semibold mt-6 mb-3" id="subhead-insurance-info">Insurance Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="insurance-provider" id="label-insurance-provider">Insurance Provider Name:</label>
+                        <input type="text" id="insurance-provider" data-placeholder-key="placeholderInsuranceProvider">
+                    </div>
+                    <div class="form-group">
+                        <label for="insurance-plan" id="label-insurance-plan">Plan Name:</label>
+                        <input type="text" id="insurance-plan" data-placeholder-key="placeholderInsurancePlan">
+                    </div>
+                    <div class="form-group">
+                        <label for="insurance-policy-no" id="label-insurance-policy-no">Policy Number:</label>
+                        <input type="text" id="insurance-policy-no" data-placeholder-key="placeholderInsurancePolicyNo">
+                    </div>
+                     <div class="form-group">
+                        <label for="insurance-group-no" id="label-insurance-group-no">Group Number (if any):</label>
+                        <input type="text" id="insurance-group-no" data-placeholder-key="placeholderInsuranceGroupNo">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="billing-address" id="label-billing-address">Billing Address:</label>
+                    <textarea id="billing-address" data-placeholder-key="placeholderBillingAddress" rows="2"></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="insurance-card-front" id="label-insurance-card-front">Insurance Card (Front):</label>
+                        <input type="file" id="insurance-card-front" accept="image/*">
+                        <img id="insurance-card-front-preview" class="insurance-card-preview hidden" alt="Insurance Card Front Preview">
+                    </div>
+                    <div class="form-group">
+                        <label for="insurance-card-back" id="label-insurance-card-back">Insurance Card (Back):</label>
+                        <input type="file" id="insurance-card-back" accept="image/*">
+                        <img id="insurance-card-back-preview" class="insurance-card-preview hidden" alt="Insurance Card Back Preview">
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-semibold mt-6 mb-3" id="subhead-share-info">Share Your Information with a Physician's Office</h3>
+                <div class="form-group">
+                    <label for="share-physician-office-id" id="label-share-physician-office-id">Physician Office Code (e.g., PHYS_OFFICE_123):</label>
+                    <input type="text" id="share-physician-office-id" placeholder="Enter office code">
+                </div>
+                <div class="form-group">
+                    <label id="label-share-sections">Select Information to Share:</label>
+                    <div>
+                        <input type="checkbox" id="share-section-demographics" value="demographics" checked> <label for="share-section-demographics" id="label-share-demographics">Basic Info (Name, Age)</label><br>
+                        <input type="checkbox" id="share-section-medications" value="medications" checked> <label for="share-section-medications" id="label-share-medications">Medications</label><br>
+                        <input type="checkbox" id="share-section-allergies" value="allergies" checked> <label for="share-section-allergies" id="label-share-allergies">Allergies</label><br>
+                        <input type="checkbox" id="share-section-pmh" value="pmh" checked> <label for="share-section-pmh" id="label-share-pmh">Past Medical History</label><br>
+                        <input type="checkbox" id="share-section-psh" value="psh" checked> <label for="share-section-psh" id="label-share-psh">Past Surgical History</label><br>
+                        <input type="checkbox" id="share-section-pcp" value="pcp" checked> <label for="share-section-pcp" id="label-share-pcp">PCP Information</label><br>
+                        <input type="checkbox" id="share-section-insurance" value="insurance" checked> <label for="share-section-insurance" id="label-share-insurance">Insurance Information (Details only, no card images)</label><br>
+                        <input type="checkbox" id="share-section-symptom-history" value="symptomHistory" checked> <label for="share-section-symptom-history" id="label-share-symptom-history">Symptom Check History</label><br>
+                    </div>
+                </div>
+                <button id="btn-share-data-physician" onclick="shareDataWithPhysician()" class="mt-2">Share with Physician Office</button>
+
+                <h3 class="text-xl font-semibold mt-6 mb-3" id="subhead-manage-sharing">Manage Sharing</h3>
+                <div id="manage-sharing-container" class="info-section">
+                    <p id="sharing-not-active-message">You are not currently sharing your information with any physician offices.</p>
+                    {/* Active shares will be populated here by JS */}
+                </div>
+                <div class="profile-actions">
+                    <button id="btn-save-profile" onclick="saveProfileChanges()">Save Profile Changes</button> <button id="btn-clear-profile" onclick="clearProfileAndRestart()" class="button-danger hidden">Clear Profile & Restart</button>
+                    <button onclick="showPatientDashboard()" class="button-secondary">Back to Dashboard</button>
+                </div>
+            </div>
+
+            <div id="body-diagram-section" class="hidden info-section">
+                <h2 id="body-diagram-header" class="text-2xl font-semibold mb-6">Area of Concern</h2>
+                <p id="body-diagram-instruction" class="mb-4">Please click on the area of the body where you are experiencing the main symptom, or skip if not applicable.</p>
+                <div id="body-diagram-svg-container">
+                    <p>(Interactive Body Diagram Placeholder - Click to simulate selecting 'Chest')</p>
+                </div>
+                <div class="mt-6 flex justify-between">
+                    <button id="btn-skip-body-diagram" onclick="skipBodyDiagram()" class="button-secondary">Skip / Not Applicable</button>
+                    <button onclick="showPatientDashboard()" class="button-secondary">Back to Dashboard</button>
+                </div>
+            </div>
+
+            <div id="single-question-section" class="hidden">
+                <h2 id="questions-section-header" class="text-2xl font-semibold mb-6">Health Question</h2>
+                <div id="single-question-container"></div>
+                <div class="question-navigation-buttons">
+                    <button id="btn-previous-question" onclick="previousQuestion()" class="button-secondary">Previous</button>
+                    <button id="btn-next-question" onclick="nextQuestion()">Next Question</button>
+                </div>
+                <div class="mt-6 text-center">
+                     <button id="btn-submit-answers-final" onclick="submitAnswers()" class="hidden">Submit All Answers</button>
+                </div>
+                 <button onclick="showPatientDashboard()" class="button-secondary mt-4">Cancel & Back to Dashboard</button>
+            </div>
+
+            <div id="result-section" class="hidden acuity-result">
+                <h2 id="result-section-header" class="text-2xl font-semibold mb-4">Acuity Assessment</h2>
+                <p id="acuity-level" class="text-lg font-medium mb-2"></p>
+                <p id="recommendation" class="mb-4"></p>
+                <div id="pcp-info-display" class="pcp-info-display hidden"></div>
+                <div id="urgent-care-info" class="urgent-care-details hidden info-section">
+                    <p id="urgent-care-text-default">Finding the closest urgent care...</p>
+                    <div id="map-links-container" class="map-links-container"></div>
+                </div>
+                <div id="medium-acuity-resource-suggestions" class="hidden info-section">
+                    <h3 id="medium-acuity-resource-header">Care Options & Resources</h3>
+                    <div id="medium-acuity-pcp-info-display" class="resource-item">
+                        <p><strong>Your Primary Care Physician (PCP):</strong> <span id="medium-pcp-details"></span></p>
+                    </div>
+                    <div id="medium-acuity-retail-clinics-info" class="resource-item">
+                        <p><strong>Local Retail Clinics:</strong> <span id="medium-retail-clinics-text"></span></p>
+                        <div id="medium-retail-clinics-map-links" class="map-links-container"></div>
+                    </div>
+                    <div id="medium-acuity-urgent-cares-info" class="resource-item">
+                        <p><strong>Local Urgent Care Centers:</strong> <span id="medium-urgent-cares-text"></span></p>
+                        <div id="medium-urgent-cares-map-links" class="map-links-container"></div>
+                    </div>
+                </div>
+                <div id="self-care-advice-section" class="hidden info-section">
+                    <h3 id="self-care-advice-header">General Self-Care Advice</h3>
+                    <div id="self-care-advice-content" class="text-sm"></div>
+                    <p id="self-care-disclaimer" class="text-xs italic mt-4"></p>
+                </div>
+                <button id="btn-start-over" onclick="startOverFromResults()" class="mt-6">Start New Check</button>
+                <button onclick="showPatientDashboard()" class="button-secondary">Back to Dashboard</button>
+            </div>
+        </div>
+
+        <div id="physician-portal-section" class="hidden">
+            <div class="portal-header">
+                <h2 id="physician-portal-header">Physician Portal</h2>
+                <button id="btn-logout-physician" onclick="logout()" class="button-danger">Logout</button>
+            </div>
+            <div id="physician-dashboard-section">
+                <h3 id="physician-dashboard-header" class="text-xl font-semibold mb-4">Patient Lookup (Mock)</h3>
+                <div class="form-group">
+                    <label for="physician-patient-search-name" id="label-physician-patient-search-name">Patient Full Name:</label>
+                    <input type="text" id="physician-patient-search-name" placeholder="e.g., John Doe">
+                </div>
+                <button id="btn-physician-search-patient" onclick="searchPatientForPhysicianPortal()" class="mt-2">Search Patient</button>
+
+                <div id="physician-patient-detail-view" class="hidden info-section mt-6">
+                    {/* Patient details based on shared data will be shown here */}
+                </div>
+            </div>
+        </div>
+
+        <div id="message-box-wrapper" class="hidden">
+            <div id="message-box-content">
+                <p id="message-text" class="mb-4 text-lg"></p>
+                <button id="btn-message-ok" onclick="hideMessageBox()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- TRANSLATIONS OBJECT ---
+        const translations = {
+            en: {
+                appTitle: "Care Critical",
+                langToggle: "Switch to Spanish",
+                mainTitle: "Care Critical",
+                loginHeader: "Select Your Role",
+                btnLoginPatient: "Patient Portal",
+                btnLoginPhysician: "Physician Portal",
+                patientPortalHeader: "Patient Portal",
+                btnPatientDashboard: "Dashboard",
+                btnLogout: "Logout",
+                patientDashboardProfileHeader: "Your Profile",
+                patientDashboardProfileMessage: "Manage your personal and medical information.",
+                patientDashboardSymptomHeader: "Symptom Checker",
+                patientDashboardNewsHeader: "Latest Health News",
+                btnGotoSymptomCheck: "Start Symptom Check",
+                physicianPortalHeader: "Physician Portal",
+                physicianDashboardHeader: "Patient Lookup (Mock)", // Updated
+                physicianDashboardMessage: "Select a patient to view details (mock data).", // This message might be replaced or removed
+                physicianPatientNameHeader: "Patient Name",
+                physicianPatientAgeHeader: "Age",
+                physicianPatientSymptomsHeader: "Reported Symptoms", // Used for Symptom History display
+                physicianPatientAcuityHeader: "Last Acuity", // Used for Symptom History display
+                welcomeMessageLoading: "Loading profile...",
+                welcomeMessageLoaded: "Welcome back, {name}! Your profile is loaded.",
+                welcomeMessageNoProfile: "No profile found. Please create one to proceed.",
+                btnLoadProfileAndStart: "View/Edit Profile",
+                btnEditProfile: "Edit Profile",
+                btnCreateProfile: "Create Profile",
+                profileSectionHeader: "Your Profile",
+                labelPatientName: "Full Name:", placeholderPatientName: "Enter your name",
+                labelPatientAge: "Age:", placeholderPatientAge: "Enter your age",
+                labelPatientMedications: "Current Medications (comma-separated, e.g., Lisinopril 10mg):", placeholderPatientMedications: "Lisinopril 10mg, Metformin 500mg",
+                labelPatientAllergies: "Known Allergies (comma-separated, e.g., Penicillin):", placeholderPatientAllergies: "Penicillin, Sulfa drugs",
+                labelPatientPMH: "Past Medical History (comma-separated, e.g., Hypertension, Diabetes):", placeholderPatientPMH: "Hypertension, Asthma",
+                labelPatientPSH: "Past Surgical History (comma-separated, e.g., Appendectomy 2010):", placeholderPatientPSH: "Appendectomy 2010, Knee surgery 2015",
+                subheadPcpInfo: "PCP Information",
+                labelPcpName: "PCP Name:", placeholderPcpName: "Dr. Jane Doe",
+                labelPcpContact: "PCP Contact:", placeholderPcpContact: "e.g., (555) 123-4567 or City Clinic",
+                subheadInsuranceInfo: "Insurance Information",
+                labelInsuranceProvider: "Insurance Provider Name:", placeholderInsuranceProvider: "e.g., BlueCross BlueShield",
+                labelInsurancePlan: "Plan Name:", placeholderInsurancePlan: "e.g., PPO Gold Plan",
+                labelInsurancePolicyNo: "Policy Number:", placeholderInsurancePolicyNo: "e.g., XZ987654321",
+                labelInsuranceGroupNo: "Group Number (if any):", placeholderInsuranceGroupNo: "e.g., GRP555",
+                labelBillingAddress: "Billing Address:", placeholderBillingAddress: "123 Main St, Anytown, USA",
+                labelInsuranceCardFront: "Insurance Card (Front):",
+                labelInsuranceCardBack: "Insurance Card (Back):",
+                btnSaveProfileAndStart: "Save Profile & Start Check",
+                btnUpdateProfileAndStart: "Update Profile & Start Check",
+                profileChangesSaved: "Save Profile Changes", // New/Updated
+                btnClearProfile: "Clear Profile & Restart",
+                confirmClearProfile: "Are you sure you want to clear your saved profile? This action cannot be undone.",
+                questionsSectionHeader: "Health Question",
+                btnPreviousQuestion: "Previous Question",
+                btnNextQuestion: "Next Question",
+                btnSubmitAllAnswers: "Submit All Answers",
+                bodyDiagramHeader: "Area of Concern",
+                bodyDiagramInstruction: "Please click on the area of the body where you are experiencing the main symptom, or skip if not applicable.",
+                btnSkipBodyDiagram: "Skip / Not Applicable",
+                resultSectionHeader: "Acuity Assessment",
+                urgentCareTextDefault: "Finding the closest urgent care...",
+                findOnGoogleMaps: "Find on Google Maps",
+                findOnAppleMaps: "Find on Apple Maps",
+                btnStartOver: "Start New Check",
+                btnMessageOk: "OK",
+                validationProfileError: "Please enter a valid name and an age between 1 and 120. Other fields are optional but recommended.",
+                allergyPromptMessage: "We noticed you're taking an antihistamine and reporting new allergy-like symptoms (rash, hives, itching, or swelling).\n\nWhat specific allergen(s) do you suspect is causing this reaction? (e.g., pollen, a specific food, a new medication, insect bite). If unsure, type 'unknown'.",
+                allergyAddedSuccess: "Allergy '{allergen}' has been added to your profile.",
+                allergyAlreadyListed: "Allergy '{allergen}' is already listed.",
+                acuityLevelText: "Calculated Acuity: {level}",
+                acuityReasonText: "(Reason: {reason})",
+                recommendationLowAcuity: "Recommendation: Monitor your symptoms. If they worsen, consider contacting your doctor.",
+                recommendationMediumAcuity: "Recommendation: Consider contacting your primary care physician or seeking care at a local retail clinic or urgent care center. See resource suggestions below. If symptoms like chest pain or severe difficulty breathing develop, seek emergency care.",
+                recommendationHighAcuity: "Recommendation: Based on your symptoms, it is recommended to seek urgent medical attention.",
+                mediumAcuityResourceHeader: "Care Options & Resources",
+                mediumPCPInfoDefault: "Please provide PCP details in your profile.",
+                retailClinicsInfoText: "Consider local retail clinics. We can help you find one:",
+                urgentCaresInfoText: "Consider local urgent care centers. We can help you find one:",
+                directionsGoogleMaps: "Get Directions (Google Maps)",
+                directionsAppleMaps: "Get Directions (Apple Maps)",
+                pcpInfoPreamble: " Your PCP is {pcpName} (Contact: {pcpContact}).",
+                pcpInfoPreambleNoContact: " Your PCP is {pcpName}.",
+                pcpLowAcuityInform: " You may wish to inform them at your next convenience.",
+                pcpMediumAcuityInform: " It's advisable to inform your PCP about your symptoms.",
+                pcpInfoForUrgentCare: "For Urgent Care/ER: Patient's PCP is {pcpName} (Contact: {pcpContact}).",
+                pcpInfoForUrgentCareNoContact: "For Urgent Care/ER: Patient's PCP is {pcpName}.",
+                geolocationAttempting: "Attempting to find your location for nearby options...",
+                geolocationSuccess: "Your approximate location: Latitude: {lat}, Longitude: {lon}.<br>Please find the nearest options below.",
+                geolocationErrorBase: "Could not retrieve your location. ",
+                geolocationErrorPermissionDenied: "User denied the request for Geolocation.",
+                geolocationErrorPositionUnavailable: "Location information is unavailable.",
+                geolocationErrorTimeout: "The request to get user location timed out.",
+                geolocationErrorUnknown: "An unknown error occurred.",
+                geolocationManualSearch: " Please search manually using the links below.",
+                geolocationNotSupported: "Geolocation is not supported by this browser. Please search manually using the links below.",
+                selfCareAdviceHeader: "General Self-Care Advice",
+                disclaimerMedicalAdvice: "Disclaimer: The information provided here is for general guidance only and not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition. Never disregard professional medical advice or delay in seeking it because of something you have read here. If your symptoms worsen or you have new concerns, please consult a healthcare professional promptly.",
+                // Acuity Reasons (copied, ensure all are here)
+                rfReasonChestPainComplex: "Chest pain with arm/jaw pain or shortness of breath.",
+                rfReasonDifficultyBreathingComplex: "Difficulty breathing that is sudden, has wheezing, or occurs with chest pain.",
+                rfReasonLossOfConsciousness: "Sudden loss of consciousness or new confusion.",
+                rfReasonStrokeSymptoms: "Sudden stroke-like symptoms (face droop, arm weakness, or speech difficulty).",
+                rfReasonSevereHeadacheComplex: "Sudden severe headache, especially with stiff neck or fever.",
+                rfReasonSevereAbdominalPainComplex: "Severe, sudden abdominal pain, or abdominal pain with vomiting, fever, or bloody stool.",
+                rfReasonSevereAllergicReaction: "Severe allergic reaction with difficulty breathing or face/throat swelling.",
+                rfReasonNewConcerningSeizure: "New seizure, or seizure that is prolonged or repeated.",
+                rfReasonOverdosePoisoning: "Suspected drug overdose or poisoning.",
+                rfReasonSmokeInhalation: "Significant smoke inhalation.",
+                rfReasonLossOfControlBowelBladder: "New, sudden loss of bowel or bladder control.",
+                rfReasonHighFever: "High or persistent fever.",
+                rfReasonGenericSevereSymptom: "Very severe primary symptom (5/5).",
+                rfReasonGenericSymptomSeverity4: "Primary symptom severity 4/5.",
+                rfReasonGenericFeverAndSeverity: "Fever with significant symptom severity (3+).",
+                rfReasonChestPainWithHeartMeds: "Chest pain while on heart/blood pressure medication.",
+                rfReasonChestPainWithHeartHistory: "Chest pain with a history of heart disease.",
+                // Questions (ensure all questions are here)
+                questions: { /* ... All existing questions ... */ },
+                selfCareAdvice: { /* ... All existing self-care advice ... */ },
+
+                // ***** NEW TRANSLATIONS FOR SHARING *****
+                subheadShareInfo: "Share Your Information with a Physician's Office",
+                labelSharePhysicianOfficeId: "Physician Office Code (e.g., PHYS_OFFICE_123):",
+                labelShareSections: "Select Information to Share:",
+                labelShareDemographics: "Basic Info (Name, Age)",
+                labelShareMedications: "Medications",
+                labelShareAllergies: "Allergies",
+                labelSharePMH: "Past Medical History",
+                labelSharePSH: "Past Surgical History",
+                labelSharePCP: "PCP Information",
+                labelShareInsurance: "Insurance Information (Details only, no card images)",
+                labelShareSymptomHistory: "Symptom Check History",
+                btnShareDataPhysician: "Share with Physician Office",
+                subheadManageSharing: "Manage Sharing",
+                sharingNotActiveMessage: "You are not currently sharing your information with any physician offices.",
+                sharingWithOffice: "Sharing with: {officeId}",
+                sharedSectionsPrefix: "Sections:",
+                btnRevokeAccess: "Revoke Access",
+                confirmRevokeAccess: "Are you sure you want to revoke access for {officeId}?",
+                physicianOfficeCodeRequired: "Physician office code is required.",
+                noSectionsSelectedToShare: "Please select at least one section of information to share.",
+                sharingSuccessful: "Information successfully shared with {officeId}.",
+                sharingRevokedMessage: "Sharing revoked for office {officeId}.",
+                // For physician portal search
+                labelPhysicianPatientSearchName: "Patient Full Name:",
+                btnPhysicianSearchPatient: "Search Patient",
+                physicianPatientNotFound: "Patient not found or they have not shared their information with this office code (PHYS_OFFICE_123).",
+                physicianSymptomHistoryHeader: "Symptom Check History (Shared)"
+            },
+            es: { // Spanish translations - ABBREVIATED, you'll need to fill these in
+                appTitle: "Care Critical",
+                langToggle: "Cambiar a Inglés",
+                mainTitle: "Care Critical",
+                // ... All other existing Spanish translations ...
+                profileChangesSaved: "Guardar Cambios del Perfil",
+                // ***** NEW SPANISH TRANSLATIONS FOR SHARING *****
+                subheadShareInfo: "Compartir Su Información con un Consultorio Médico",
+                labelSharePhysicianOfficeId: "Código del Consultorio Médico (ej., PHYS_OFFICE_123):",
+                labelShareSections: "Seleccione Información para Compartir:",
+                labelShareDemographics: "Información Básica (Nombre, Edad)",
+                labelShareMedications: "Medicamentos",
+                labelShareAllergies: "Alergias",
+                labelSharePMH: "Historial Médico Pasado",
+                labelSharePSH: "Historial Quirúrgico Pasado",
+                labelSharePCP: "Información del PCP",
+                labelShareInsurance: "Información del Seguro (Solo detalles, sin imágenes de tarjetas)",
+                labelShareSymptomHistory: "Historial de Verificación de Síntomas",
+                btnShareDataPhysician: "Compartir con Consultorio Médico",
+                subheadManageSharing: "Gestionar Uso Compartido",
+                sharingNotActiveMessage: "Actualmente no está compartiendo su información con ningún consultorio médico.",
+                sharingWithOffice: "Compartiendo con: {officeId}",
+                sharedSectionsPrefix: "Secciones:",
+                btnRevokeAccess: "Revocar Acceso",
+                confirmRevokeAccess: "¿Está seguro de que desea revocar el acceso para {officeId}?",
+                physicianOfficeCodeRequired: "Se requiere el código del consultorio médico.",
+                noSectionsSelectedToShare: "Por favor, seleccione al menos una sección de información para compartir.",
+                sharingSuccessful: "Información compartida exitosamente con {officeId}.",
+                sharingRevokedMessage: "Uso compartido revocado para el consultorio {officeId}.",
+                labelPhysicianPatientSearchName: "Nombre Completo del Paciente:",
+                btnPhysicianSearchPatient: "Buscar Paciente",
+                physicianPatientNotFound: "Paciente no encontrado o no ha compartido su información con este código de consultorio (PHYS_OFFICE_123).",
+                physicianSymptomHistoryHeader: "Historial de Verificación de Síntomas (Compartido)"
+                // ... other Spanish translations ...
+            }
+        };
+
+        // --- Global State ---
+        let currentLanguage = localStorage.getItem('appPreferredLanguage_v8') || 'en';
+        let currentUserRole = null;
+        let patientData = {
+            name: '', age: '',
+            medications: [], allergies: [],
+            pastMedicalHistory: [], pastSurgicalHistory: [],
+            pcpName: '', pcpContact: '',
+            insuranceProvider: '', insurancePlan: '', insurancePolicyNumber: '', insuranceGroupNumber: '', billingAddress: '',
+            insuranceCardFrontDataUrl: null, insuranceCardBackDataUrl: null,
+            responses: {}, selectedBodyPart: null,
+            lastCalculatedAcuity: null,
+            symptomCheckHistory: [],   // NEW
+            sharingPermissions: []    // NEW: Example: { physicianOfficeId: "PHYS_OFFICE_123", sharedSections: ["demographics", "medications"], sharedDate: "...", status: "active" }
+        };
+        let currentQuestionIndex = 0;
+        let currentAppSection = 'login';
+        let activeQuestionSet = [];
+
+        // Mock patient data for physician portal IS NO LONGER USED. We will search localStorage.
+        // const mockPatients = [ ... ];
+
+        // --- DOM Element References ---
+        let loginSection, patientPortalSection, physicianPortalSection,
+            patientDashboardSection, healthNewsFeedContainer,
+            physicianDashboardSection, /* physicianPatientListContainer, NO LONGER USED directly for list */ physicianPatientDetailView,
+            patientProfileLoadOptions;
+
+        // Sharing related DOM elements
+        let sharePhysicianOfficeIdInput, manageSharingContainer, sharingNotActiveMessageEl;
+        let labelShareDemographicsEl, labelShareMedicationsEl, labelShareAllergiesEl, labelSharePMHEl, labelSharePSHEl, labelSharePCPEl, labelShareInsuranceEl, labelShareSymptomHistoryEl; // For checkbox labels
+        let physicianPatientSearchNameInput, btnPhysicianSearchPatientEl; // For physician search
+
+
+        // Existing elements (ensure they are all captured)
+        let appTitle, langToggleBtn, mainTitle,
+            profileSection, profileSectionHeader,
+            labelPatientName, patientNameInput, labelPatientAge, patientAgeInput,
+            // ... (all other existing DOM element vars) ...
+            btnSaveProfile, btnClearProfile, // btnSaveProfile used for "Save Profile Changes"
+            // ...
+            messageBoxWrapper, messageText, btnMessageOk;
+
+
+        // --- Question Flow Configuration (Same as before) ---
+        const questionsFlow = { /* ... same as before ... */ };
+        const bodyDiagramPaths = { /* ... same as before ... */ };
+        const commonAntihistamines = [/* ... */];
+        const antihypertensiveKeywords = [/* ... */];
+        const heartFailureKeywords = [/* ... */];
+
+
+        function getAllDOMElements() {
+            loginSection = document.getElementById('login-section');
+            patientPortalSection = document.getElementById('patient-portal-section');
+            physicianPortalSection = document.getElementById('physician-portal-section');
+            patientDashboardSection = document.getElementById('patient-dashboard-section');
+            healthNewsFeedContainer = document.getElementById('health-news-feed-container');
+            physicianDashboardSection = document.getElementById('physician-dashboard-section');
+            // physicianPatientListContainer = document.getElementById('physician-patient-list-container'); // Not used for list anymore
+            physicianPatientDetailView = document.getElementById('physician-patient-detail-view');
+            patientProfileLoadOptions = document.getElementById('patient-profile-load-options');
+
+            appTitle = document.getElementById('app-title');
+            langToggleBtn = document.getElementById('lang-toggle-btn');
+            mainTitle = document.getElementById('main-title');
+            profileSection = document.getElementById('profile-section');
+            profileSectionHeader = document.getElementById('profile-section-header');
+            labelPatientName = document.getElementById('label-patient-name');
+            patientNameInput = document.getElementById('patient-name');
+            // ... (Initialize all other existing DOM elements)
+            patientAgeInput = document.getElementById('patient-age');
+            patientMedicationsInput = document.getElementById('patient-medications');
+            patientAllergiesInput = document.getElementById('patient-allergies');
+            patientPMHInput = document.getElementById('patient-pmh');
+            patientPSHInput = document.getElementById('patient-psh');
+            pcpNameInput = document.getElementById('pcp-name');
+            pcpContactInput = document.getElementById('pcp-contact');
+            insuranceProviderInput = document.getElementById('insurance-provider');
+            insurancePlanInput = document.getElementById('insurance-plan');
+            insurancePolicyNoInput = document.getElementById('insurance-policy-no');
+            insuranceGroupNoInput = document.getElementById('insurance-group-no');
+            billingAddressInput = document.getElementById('billing-address');
+            insuranceCardFrontInput = document.getElementById('insurance-card-front');
+            insuranceCardFrontPreview = document.getElementById('insurance-card-front-preview');
+            insuranceCardBackInput = document.getElementById('insurance-card-back');
+            insuranceCardBackPreview = document.getElementById('insurance-card-back-preview');
+            btnSaveProfile = document.getElementById('btn-save-profile');
+            btnClearProfile = document.getElementById('btn-clear-profile');
+            bodyDiagramSection = document.getElementById('body-diagram-section');
+            bodyDiagramHeader = document.getElementById('body-diagram-header');
+            bodyDiagramInstruction = document.getElementById('body-diagram-instruction');
+            bodyDiagramSvgContainer = document.getElementById('body-diagram-svg-container');
+            btnSkipBodyDiagram = document.getElementById('btn-skip-body-diagram');
+            singleQuestionSection = document.getElementById('single-question-section');
+            questionsSectionHeader = document.getElementById('questions-section-header');
+            singleQuestionContainer = document.getElementById('single-question-container');
+            btnPreviousQuestion = document.getElementById('btn-previous-question');
+            btnNextQuestion = document.getElementById('btn-next-question');
+            btnSubmitAllAnswersFinal = document.getElementById('btn-submit-answers-final');
+            resultSection = document.getElementById('result-section');
+            resultSectionHeader = document.getElementById('result-section-header');
+            acuityLevelPara = document.getElementById('acuity-level');
+            recommendationPara = document.getElementById('recommendation');
+            pcpInfoDisplayDiv = document.getElementById('pcp-info-display');
+            urgentCareInfoDiv = document.getElementById('urgent-care-info');
+            urgentCareTextDefault = document.getElementById('urgent-care-text-default');
+            urgentCareMapLinksContainer = document.getElementById('map-links-container');
+            mediumAcuityResourceSuggestions = document.getElementById('medium-acuity-resource-suggestions');
+            mediumAcuityResourceHeader = document.getElementById('medium-acuity-resource-header');
+            mediumAcuityPcpInfoDisplay = document.getElementById('medium-acuity-pcp-info-display');
+            mediumPcpDetails = document.getElementById('medium-pcp-details');
+            mediumAcuityRetailClinicsInfo = document.getElementById('medium-acuity-retail-clinics-info');
+            mediumRetailClinicsText = document.getElementById('medium-retail-clinics-text');
+            mediumRetailClinicsMapLinks = document.getElementById('medium-retail-clinics-map-links');
+            mediumAcuityUrgentCaresInfo = document.getElementById('medium-acuity-urgent-cares-info');
+            mediumUrgentCaresText = document.getElementById('medium-urgent-cares-text');
+            mediumUrgentCaresMapLinks = document.getElementById('medium-urgent-cares-map-links');
+            selfCareAdviceSection = document.getElementById('self-care-advice-section');
+            selfCareAdviceHeader = document.getElementById('self-care-advice-header');
+            selfCareAdviceContent = document.getElementById('self-care-advice-content');
+            selfCareDisclaimer = document.getElementById('self-care-disclaimer');
+            btnStartOver = document.getElementById('btn-start-over');
+            messageBoxWrapper = document.getElementById('message-box-wrapper');
+            messageText = document.getElementById('message-text');
+            btnMessageOk = document.getElementById('btn-message-ok');
+
+
+            // NEW DOM Elements for Sharing Feature
+            sharePhysicianOfficeIdInput = document.getElementById('share-physician-office-id');
+            manageSharingContainer = document.getElementById('manage-sharing-container');
+            sharingNotActiveMessageEl = document.getElementById('sharing-not-active-message');
+            labelShareDemographicsEl = document.getElementById('label-share-demographics');
+            labelShareMedicationsEl = document.getElementById('label-share-medications');
+            labelShareAllergiesEl = document.getElementById('label-share-allergies');
+            labelSharePMHEl = document.getElementById('label-share-pmh');
+            labelSharePSHEl = document.getElementById('label-share-psh');
+            labelSharePCPEl = document.getElementById('label-share-pcp');
+            labelShareInsuranceEl = document.getElementById('label-share-insurance');
+            labelShareSymptomHistoryEl = document.getElementById('label-share-symptom-history');
+
+
+            // Physician Portal Search
+            physicianPatientSearchNameInput = document.getElementById('physician-patient-search-name');
+            btnPhysicianSearchPatientEl = document.getElementById('btn-physician-search-patient');
+
+
+            if (bodyDiagramSvgContainer) {
+                bodyDiagramSvgContainer.addEventListener('click', () => { handleBodyPartClick('chest'); });
+            }
+            if (insuranceCardFrontInput) {
+                insuranceCardFrontInput.addEventListener('change', (event) => handleImageFile(event, 'insuranceCardFrontDataUrl', insuranceCardFrontPreview));
+            }
+            if (insuranceCardBackInput) {
+                insuranceCardBackInput.addEventListener('change', (event) => handleImageFile(event, 'insuranceCardBackDataUrl', insuranceCardBackPreview));
+            }
+        }
+
+
+        function applyTranslations() {
+            const T = translations[currentLanguage];
+            document.documentElement.lang = currentLanguage;
+            if (appTitle) appTitle.textContent = T.appTitle;
+            if (langToggleBtn) langToggleBtn.textContent = T.langToggle;
+            if (mainTitle) mainTitle.textContent = T.mainTitle;
+
+            // Login section
+            const loginHeaderEl = document.getElementById('login-header');
+            if (loginHeaderEl) loginHeaderEl.textContent = T.loginHeader;
+            const btnLoginPatientEl = document.getElementById('btn-login-patient');
+            if (btnLoginPatientEl) btnLoginPatientEl.textContent = T.btnLoginPatient;
+            const btnLoginPhysicianEl = document.getElementById('btn-login-physician');
+            if (btnLoginPhysicianEl) btnLoginPhysicianEl.textContent = T.btnLoginPhysician;
+
+            // Patient Portal
+            const patientPortalHeaderEl = document.getElementById('patient-portal-header');
+            if (patientPortalHeaderEl) patientPortalHeaderEl.textContent = T.patientPortalHeader;
+            const btnPatientDashboardEl = document.getElementById('btn-patient-dashboard');
+            if (btnPatientDashboardEl) btnPatientDashboardEl.textContent = T.btnPatientDashboard;
+            const btnLogoutPatientEl = document.getElementById('btn-logout-patient');
+            if (btnLogoutPatientEl) btnLogoutPatientEl.textContent = T.btnLogout;
+            const patientDashboardProfileHeaderEl = document.getElementById('patient-dashboard-profile-header');
+            if (patientDashboardProfileHeaderEl) patientDashboardProfileHeaderEl.textContent = T.patientDashboardProfileHeader;
+            const patientDashboardProfileMessageEl = document.getElementById('patient-dashboard-profile-message');
+            if (patientDashboardProfileMessageEl) patientDashboardProfileMessageEl.textContent = T.patientDashboardProfileMessage; // This might be updated by JS
+            const patientDashboardSymptomHeaderEl = document.getElementById('patient-dashboard-symptom-header');
+            if (patientDashboardSymptomHeaderEl) patientDashboardSymptomHeaderEl.textContent = T.patientDashboardSymptomHeader;
+            const patientDashboardNewsHeaderEl = document.getElementById('patient-dashboard-news-header');
+            if(patientDashboardNewsHeaderEl) patientDashboardNewsHeaderEl.textContent = T.patientDashboardNewsHeader;
+            const btnGotoSymptomCheckEl = document.getElementById('btn-goto-symptom-check');
+            if(btnGotoSymptomCheckEl) btnGotoSymptomCheckEl.textContent = T.btnGotoSymptomCheck;
+
+
+            // Physician Portal
+            const physicianPortalHeaderEl = document.getElementById('physician-portal-header');
+            if (physicianPortalHeaderEl) physicianPortalHeaderEl.textContent = T.physicianPortalHeader;
+            const btnLogoutPhysicianEl = document.getElementById('btn-logout-physician');
+            if (btnLogoutPhysicianEl) btnLogoutPhysicianEl.textContent = T.btnLogout;
+            const physicianDashboardHeaderEl = document.getElementById('physician-dashboard-header');
+            if(physicianDashboardHeaderEl) physicianDashboardHeaderEl.textContent = T.physicianDashboardHeader;
+            const labelPhysicianPatientSearchNameEl = document.getElementById('label-physician-patient-search-name');
+            if(labelPhysicianPatientSearchNameEl) labelPhysicianPatientSearchNameEl.textContent = T.labelPhysicianPatientSearchName;
+            if(btnPhysicianSearchPatientEl) btnPhysicianSearchPatientEl.textContent = T.btnPhysicianSearchPatient;
+
+
+            if (profileSectionHeader) profileSectionHeader.textContent = T.profileSectionHeader;
+            // ... (all other labels and placeholders as before) ...
+            document.querySelectorAll('[data-placeholder-key]').forEach(el => {
+                const key = el.getAttribute('data-placeholder-key');
+                if (T[key]) el.placeholder = T[key];
+                else if (translations.en[key]) el.placeholder = translations.en[key];
+            });
+             // Apply translations to labels by ID
+            const labelElements = [
+                { el: labelPatientName, key: 'labelPatientName' }, { el: labelPatientAge, key: 'labelPatientAge' },
+                { el: labelPatientMedications, key: 'labelPatientMedications' }, { el: labelPatientAllergies, key: 'labelPatientAllergies' },
+                { el: labelPatientPMH, key: 'labelPatientPMH' }, { el: labelPatientPSH, key: 'labelPatientPSH' },
+                { el: document.getElementById('subhead-pcp-info'), key: 'subheadPcpInfo' }, { el: labelPcpName, key: 'labelPcpName' }, { el: labelPcpContact, key: 'labelPcpContact' },
+                { el: document.getElementById('subhead-insurance-info'), key: 'subheadInsuranceInfo' }, { el: labelInsuranceProvider, key: 'labelInsuranceProvider' },
+                { el: labelInsurancePlan, key: 'labelInsurancePlan' }, { el: labelInsurancePolicyNo, key: 'labelInsurancePolicyNo' },
+                { el: labelInsuranceGroupNo, key: 'labelInsuranceGroupNo' }, { el: labelBillingAddress, key: 'labelBillingAddress' },
+                { el: labelInsuranceCardFront, key: 'labelInsuranceCardFront' }, { el: labelInsuranceCardBack, key: 'labelInsuranceCardBack' }
+            ];
+            labelElements.forEach(item => { if (item.el && T[item.key]) item.el.textContent = T[item.key]; });
+
+
+            if (btnSaveProfile) {
+                // The button text is now "Save Profile Changes" and doesn't change based on profile existence in this context.
+                 btnSaveProfile.textContent = T.profileChangesSaved;
+            }
+            if (btnClearProfile) btnClearProfile.textContent = T.btnClearProfile;
+            if (questionsSectionHeader) questionsSectionHeader.textContent = T.questionsSectionHeader;
+            if (btnPreviousQuestion) btnPreviousQuestion.textContent = T.btnPreviousQuestion;
+            if (btnNextQuestion) btnNextQuestion.textContent = T.btnNextQuestion;
+            if (btnSubmitAllAnswersFinal) btnSubmitAllAnswersFinal.textContent = T.btnSubmitAllAnswers;
+            if (bodyDiagramHeader) bodyDiagramHeader.textContent = T.bodyDiagramHeader;
+            if (bodyDiagramInstruction) bodyDiagramInstruction.textContent = T.bodyDiagramInstruction;
+            if (btnSkipBodyDiagram) btnSkipBodyDiagram.textContent = T.btnSkipBodyDiagram;
+            if (resultSectionHeader) resultSectionHeader.textContent = T.resultSectionHeader;
+            // ... (rest of the existing translation applications)
+             if (urgentCareTextDefault && (urgentCareTextDefault.innerHTML.includes(translations[currentLanguage === 'en' ? 'es' : 'en'].geolocationAttempting) || urgentCareTextDefault.innerHTML.includes(translations[currentLanguage === 'en' ? 'es' : 'en'].urgentCareTextDefault))) {
+                urgentCareTextDefault.innerHTML = T.urgentCareTextDefault;
+            }
+            if (mediumAcuityResourceHeader && T.mediumAcuityResourceHeader) {
+                mediumAcuityResourceHeader.textContent = T.mediumAcuityResourceHeader;
+            }
+            if (mediumRetailClinicsText && T.retailClinicsInfoText) {
+                mediumRetailClinicsText.textContent = T.retailClinicsInfoText;
+            }
+            if (mediumUrgentCaresText && T.urgentCaresInfoText) {
+                mediumUrgentCaresText.textContent = T.urgentCaresInfoText;
+            }
+            if (selfCareAdviceHeader) selfCareAdviceHeader.textContent = T.selfCareAdviceHeader;
+            if (selfCareDisclaimer) selfCareDisclaimer.textContent = T.disclaimerMedicalAdvice;
+            if (btnStartOver) btnStartOver.textContent = T.btnStartOver;
+            if (btnMessageOk) btnMessageOk.textContent = T.btnMessageOk;
+
+            // ***** NEW TRANSLATIONS FOR SHARING SECTION *****
+            const subheadShareInfoEl = document.getElementById('subhead-share-info');
+            if (subheadShareInfoEl) subheadShareInfoEl.textContent = T.subheadShareInfo;
+            const labelSharePhysicianOfficeIdEl = document.getElementById('label-share-physician-office-id');
+            if (labelSharePhysicianOfficeIdEl) labelSharePhysicianOfficeIdEl.textContent = T.labelSharePhysicianOfficeId;
+            const labelShareSectionsEl = document.getElementById('label-share-sections');
+            if (labelShareSectionsEl) labelShareSectionsEl.textContent = T.labelShareSections;
+
+            if (labelShareDemographicsEl) labelShareDemographicsEl.textContent = " " + T.labelShareDemographics; // Prepend space for checkbox
+            if (labelShareMedicationsEl) labelShareMedicationsEl.textContent = " " + T.labelShareMedications;
+            if (labelShareAllergiesEl) labelShareAllergiesEl.textContent = " " + T.labelShareAllergies;
+            if (labelSharePMHEl) labelSharePMHEl.textContent = " " + T.labelSharePMH;
+            if (labelSharePSHEl) labelSharePSHEl.textContent = " " + T.labelSharePSH;
+            if (labelSharePCPEl) labelSharePCPEl.textContent = " " + T.labelSharePCP;
+            if (labelShareInsuranceEl) labelShareInsuranceEl.textContent = " " + T.labelShareInsurance;
+            if (labelShareSymptomHistoryEl) labelShareSymptomHistoryEl.textContent = " " + T.labelShareSymptomHistory;
+
+            const btnShareDataPhysicianEl = document.getElementById('btn-share-data-physician');
+            if (btnShareDataPhysicianEl) btnShareDataPhysicianEl.textContent = T.btnShareDataPhysician;
+            const subheadManageSharingEl = document.getElementById('subhead-manage-sharing');
+            if (subheadManageSharingEl) subheadManageSharingEl.textContent = T.subheadManageSharing;
+            if (sharingNotActiveMessageEl) sharingNotActiveMessageEl.textContent = T.sharingNotActiveMessage; // Update if visible
+
+            renderManageSharingUI(); // Re-render sharing list with new language
+
+            if (currentAppSection === 'patient-dashboard') {
+                renderPatientDashboardContent();
+            } else if (currentAppSection === 'symptom-check' && activeQuestionSet.length > 0 && currentQuestionIndex < activeQuestionSet.length) {
+                renderCurrentQuestion();
+            }
+            document.body.setAttribute('data-translate-applied', 'true');
+        }
+
+        function toggleLanguage() {
+            currentLanguage = (currentLanguage === 'en') ? 'es' : 'en';
+            localStorage.setItem('appPreferredLanguage_v8', currentLanguage);
+            applyTranslations();
+        }
+
+        function showMessageBox(messageKey, interpolateParams = {}) {
+            let message = translations[currentLanguage][messageKey] || messageKey; // Fallback to key if not found
+            if (typeof message === 'string') { // Ensure it's a string before replacing
+                for (const key in interpolateParams) { message = message.replace(`{${key}}`, interpolateParams[key]); }
+            }
+            if (messageText) messageText.textContent = message;
+            if (messageBoxWrapper) messageBoxWrapper.classList.remove('hidden');
+        }
+        function hideMessageBox() { if (messageBoxWrapper) messageBoxWrapper.classList.add('hidden'); }
+
+
+        function switchAppSection(sectionIdToShow) {
+            if(loginSection) loginSection.classList.add('hidden');
+            if(patientPortalSection) patientPortalSection.classList.add('hidden');
+            if(physicianPortalSection) physicianPortalSection.classList.add('hidden');
+            if(patientDashboardSection) patientDashboardSection.classList.add('hidden');
+            if(profileSection) profileSection.classList.add('hidden');
+            if(bodyDiagramSection) bodyDiagramSection.classList.add('hidden');
+            if(singleQuestionSection) singleQuestionSection.classList.add('hidden');
+            if(resultSection) resultSection.classList.add('hidden');
+            if(physicianDashboardSection) physicianDashboardSection.classList.add('hidden'); // Specifically physician's dashboard area
+
+            const elToShow = document.getElementById(sectionIdToShow);
+            if (elToShow) {
+                elToShow.classList.remove('hidden');
+                if (sectionIdToShow.startsWith('patient-')) {
+                    if (patientPortalSection) patientPortalSection.classList.remove('hidden');
+                } else if (sectionIdToShow.startsWith('physician-')) {
+                    if (physicianPortalSection) physicianPortalSection.classList.remove('hidden');
+                    if (sectionIdToShow === 'physician-dashboard-section' && physicianDashboardSection) { // Ensure physician main dashboard is shown
+                         physicianDashboardSection.classList.remove('hidden');
+                    }
+                }
+            }
+            currentAppSection = sectionIdToShow;
+        }
+
+        function loginAsPatient() {
+            currentUserRole = 'patient';
+            showPatientDashboard();
+            loadHealthNews();
+        }
+
+        function loginAsPhysician() {
+            currentUserRole = 'physician';
+            showPhysicianDashboard(); // This will now show the search input
+        }
+
+        function logout() {
+            currentUserRole = null;
+            // Consider clearing patientData or parts of it if sensitive and not persisted per user account
+            switchAppSection('login-section');
+        }
+
+        function showPatientDashboard() {
+            switchAppSection('patient-dashboard-section');
+            renderPatientDashboardContent();
+            // When dashboard is shown, if profile exists, load its data (including sharing permissions)
+            // and render the "Manage Sharing" UI.
+            if (patientData.name) { // Basic check if profile data is loaded
+                renderManageSharingUI();
+            }
+        }
+
+        function renderPatientDashboardContent() {
+            const T = translations[currentLanguage];
+            if (!patientProfileLoadOptions) return;
+            patientProfileLoadOptions.innerHTML = '';
+
+            if (loadProfileFromLocalStorage()) {
+                const welcomeEl = document.getElementById('patient-dashboard-profile-message');
+                if(welcomeEl) welcomeEl.textContent = T.welcomeMessageLoaded.replace('{name}', patientData.name || "User");
+
+                const editProfileBtn = document.createElement('button');
+                editProfileBtn.textContent = T.btnLoadProfileAndStart;
+                editProfileBtn.onclick = () => {
+                    loadProfileDataToForm();
+                    switchAppSection('profile-section');
+                };
+                patientProfileLoadOptions.appendChild(editProfileBtn);
+            } else {
+                const welcomeEl = document.getElementById('patient-dashboard-profile-message');
+                if(welcomeEl) welcomeEl.textContent = T.welcomeMessageNoProfile;
+
+                const createProfileBtn = document.createElement('button');
+                createProfileBtn.textContent = T.btnCreateProfile;
+                createProfileBtn.onclick = () => {
+                    // Clear form for new profile (important)
+                    const profileFormInputs = ['patient-name', 'patient-age', 'patient-pmh', 'patient-psh', 'patient-medications', 'patient-allergies', 'pcp-name', 'pcp-contact', 'insurance-provider', 'insurance-plan', 'insurance-policy-no', 'insurance-group-no', 'billing-address'];
+                    profileFormInputs.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = '';
+                    });
+                    if (insuranceCardFrontPreview) insuranceCardFrontPreview.classList.add('hidden');
+                    if (insuranceCardBackPreview) insuranceCardBackPreview.classList.add('hidden');
+                    if (insuranceCardFrontInput) insuranceCardFrontInput.value = null;
+                    if (insuranceCardBackInput) insuranceCardBackInput.value = null;
+                    patientData.insuranceCardFrontDataUrl = null; // Reset in memory too
+                    patientData.insuranceCardBackDataUrl = null;
+
+                    if(btnSaveProfile) btnSaveProfile.textContent = T.profileChangesSaved; // Should be "Save Profile Changes"
+                    if(btnClearProfile) btnClearProfile.classList.add('hidden');
+                    switchAppSection('profile-section');
+                    renderManageSharingUI(); // Render empty sharing UI for new profile
+                };
+                patientProfileLoadOptions.appendChild(createProfileBtn);
+            }
+        }
+
+
+        function startSymptomCheckFromDashboard() {
+            if (!patientData.name || !patientData.age) {
+                showMessageBox('validationProfileError');
+                return;
+            }
+            patientData.responses = {};
+            patientData.selectedBodyPart = null;
+            currentQuestionIndex = 0;
+            activeQuestionSet = [...questionsFlow.initialShort]; // Use spread to ensure it's a fresh copy
+            switchAppSection('single-question-section');
+            renderCurrentQuestion();
+        }
+
+        // --- SHARING RELATED FUNCTIONS ---
+        function getSelectedShareSections() {
+            const sections = [];
+            if (document.getElementById('share-section-demographics')?.checked) sections.push("demographics");
+            if (document.getElementById('share-section-medications')?.checked) sections.push("medications");
+            if (document.getElementById('share-section-allergies')?.checked) sections.push("allergies");
+            if (document.getElementById('share-section-pmh')?.checked) sections.push("pmh");
+            if (document.getElementById('share-section-psh')?.checked) sections.push("psh");
+            if (document.getElementById('share-section-pcp')?.checked) sections.push("pcp");
+            if (document.getElementById('share-section-insurance')?.checked) sections.push("insurance");
+            if (document.getElementById('share-section-symptom-history')?.checked) sections.push("symptomHistory");
+            return sections;
+        }
+
+        function shareDataWithPhysician() {
+            const T = translations[currentLanguage];
+            const officeId = sharePhysicianOfficeIdInput.value.trim();
+            if (!officeId) {
+                showMessageBox('physicianOfficeCodeRequired');
+                return;
+            }
+            const selectedSections = getSelectedShareSections();
+            if (selectedSections.length === 0) {
+                showMessageBox('noSectionsSelectedToShare');
+                return;
+            }
+
+            // Remove existing permission for this officeId if it exists, to replace it/update it
+            patientData.sharingPermissions = patientData.sharingPermissions.filter(p => p.physicianOfficeId !== officeId);
+
+            patientData.sharingPermissions.push({
+                physicianOfficeId: officeId,
+                sharedSections: selectedSections,
+                sharedDate: new Date().toISOString(),
+                status: 'active'
+            });
+
+            saveProfileToLocalStorage();
+            renderManageSharingUI();
+            showMessageBox('sharingSuccessful', { officeId: officeId });
+            if(sharePhysicianOfficeIdInput) sharePhysicianOfficeIdInput.value = ''; // Clear input
+        }
+
+        function revokeShareAccess(officeId) {
+            const T = translations[currentLanguage];
+            if (!confirm(T.confirmRevokeAccess.replace('{officeId}', officeId))) {
+                return;
+            }
+
+            const permission = patientData.sharingPermissions.find(p => p.physicianOfficeId === officeId);
+            if (permission) {
+                permission.status = 'revoked'; // Mark as revoked instead of removing, for audit (though not fully utilized here)
+                // Or to fully remove:
+                // patientData.sharingPermissions = patientData.sharingPermissions.filter(p => p.physicianOfficeId !== officeId);
+                saveProfileToLocalStorage();
+                renderManageSharingUI();
+                showMessageBox('sharingRevokedMessage', {officeId: officeId});
+            }
+        }
+
+        function renderManageSharingUI() {
+            const T = translations[currentLanguage];
+            if (!manageSharingContainer || !sharingNotActiveMessageEl) return;
+
+            const activeShares = patientData.sharingPermissions.filter(p => p.status === 'active');
+
+            if (activeShares.length === 0) {
+                manageSharingContainer.innerHTML = ''; // Clear any existing list
+                sharingNotActiveMessageEl.classList.remove('hidden');
+                return;
+            }
+
+            sharingNotActiveMessageEl.classList.add('hidden');
+            let html = '<ul>';
+            activeShares.forEach(share => {
+                const sharedDate = new Date(share.sharedDate).toLocaleDateString();
+                html += `<li>
+                    <strong>${T.sharingWithOffice.replace('{officeId}', share.physicianOfficeId)}</strong> (Shared on: ${sharedDate})<br>
+                    <small>${T.sharedSectionsPrefix} ${share.sharedSections.map(s => T['labelShare'+s.charAt(0).toUpperCase() + s.slice(1)] || s).join(', ')}</small><br>
+                    <button onclick="revokeShareAccess('${share.physicianOfficeId}')" class="button-danger">${T.btnRevokeAccess}</button>
+                </li>`;
+            });
+            html += '</ul>';
+            manageSharingContainer.innerHTML = html;
+        }
+
+
+        // --- PHYSICIAN PORTAL MOCK LOGIC ---
+        function showPhysicianDashboard() {
+            switchAppSection('physician-dashboard-section');
+            // Clear previous results
+            if(physicianPatientDetailView) {
+                physicianPatientDetailView.innerHTML = '';
+                physicianPatientDetailView.classList.add('hidden');
+            }
+            if(physicianPatientSearchNameInput) physicianPatientSearchNameInput.value = '';
+        }
+
+        function searchPatientForPhysicianPortal() {
+            const T = translations[currentLanguage];
+            const searchName = physicianPatientSearchNameInput.value.trim().toLowerCase();
+            if (!searchName) return;
+
+            // SIMULATION: In a real app, this would be a backend API call.
+            // Here, we'll try to load *the single patientData from localStorage*
+            // This assumes only one patient uses this browser for the demo.
+            const storedProfileJSON = localStorage.getItem('patientHealthCheckUserProfile_v8');
+            if (!storedProfileJSON) {
+                displayPhysicianPatientDetails(null, T.physicianPatientNotFound);
+                return;
+            }
+
+            let patientProfile;
+            try {
+                patientProfile = JSON.parse(storedProfileJSON);
+            } catch (e) {
+                console.error("Error parsing patient data for physician:", e);
+                displayPhysicianPatientDetails(null, "Error reading patient data.");
+                return;
+            }
+
+            // Check if the loaded profile matches the search name (case-insensitive)
+            // AND if they have shared with the MOCK physician office ID.
+            const MOCK_PHYSICIAN_OFFICE_ID = "PHYS_OFFICE_123"; // Physician must know this code.
+
+            if (patientProfile.name && patientProfile.name.toLowerCase() === searchName) {
+                const sharingPermission = patientProfile.sharingPermissions?.find(
+                    p => p.physicianOfficeId === MOCK_PHYSICIAN_OFFICE_ID && p.status === 'active'
+                );
+
+                if (sharingPermission) {
+                    // Filter patientProfile based on sharingPermission.sharedSections
+                    const sharedData = {};
+                    sharingPermission.sharedSections.forEach(sectionKey => {
+                        if (sectionKey === "demographics") {
+                            sharedData.name = patientProfile.name;
+                            sharedData.age = patientProfile.age;
+                        } else if (sectionKey === "medications") {
+                            sharedData.medications = arrayToString(patientProfile.medications?.map(m => m.raw) || []);
+                        } else if (sectionKey === "allergies") {
+                            sharedData.allergies = arrayToString(patientProfile.allergies || []);
+                        } else if (sectionKey === "pmh") {
+                            sharedData.pastMedicalHistory = arrayToString(patientProfile.pastMedicalHistory || []);
+                        } else if (sectionKey === "psh") {
+                            sharedData.pastSurgicalHistory = arrayToString(patientProfile.pastSurgicalHistory || []);
+                        } else if (sectionKey === "pcp") {
+                            sharedData.pcpName = patientProfile.pcpName;
+                            sharedData.pcpContact = patientProfile.pcpContact;
+                        } else if (sectionKey === "insurance") {
+                            sharedData.insuranceProvider = patientProfile.insuranceProvider;
+                            sharedData.insurancePlan = patientProfile.insurancePlan;
+                            sharedData.insurancePolicyNumber = patientProfile.insurancePolicyNumber;
+                            sharedData.insuranceGroupNumber = patientProfile.insuranceGroupNumber;
+                            sharedData.billingAddress = patientProfile.billingAddress;
+                            // Not sharing card images for simplicity and mock privacy
+                        } else if (sectionKey === "symptomHistory") {
+                            sharedData.symptomCheckHistory = patientProfile.symptomCheckHistory || [];
+                        }
+                        // other direct properties if any
+                        // else if (patientProfile.hasOwnProperty(sectionKey)) {
+                        //     sharedData[sectionKey] = patientProfile[sectionKey];
+                        // }
+                    });
+                    displayPhysicianPatientDetails(sharedData, null);
+                } else {
+                    displayPhysicianPatientDetails(null, T.physicianPatientNotFound + ` (Info not shared or incorrect office code)`);
+                }
+            } else {
+                displayPhysicianPatientDetails(null, T.physicianPatientNotFound);
+            }
+        }
+
+        function displayPhysicianPatientDetails(data, errorMessage) {
+            if (!physicianPatientDetailView) return;
+            const T = translations[currentLanguage];
+            physicianPatientDetailView.classList.remove('hidden');
+            physicianPatientDetailView.innerHTML = ''; // Clear previous
+
+            if (errorMessage) {
+                physicianPatientDetailView.innerHTML = `<p class="text-red-500">${errorMessage}</p>`;
+                return;
+            }
+            if (!data || Object.keys(data).length === 0) {
+                physicianPatientDetailView.innerHTML = `<p>${T.physicianPatientNotFound}</p>`;
+                return;
+            }
+
+            let html = `<h3>${data.name ? data.name : (T.physicianPatientNameHeader || 'Patient Name N/A')}</h3>`;
+            if (data.age !== undefined) html += `<p><strong>${T.physicianPatientAgeHeader || 'Age'}:</strong> ${data.age}</p>`;
+            if (data.medications !== undefined) html += `<p><strong>Medications:</strong> ${data.medications || 'N/A'}</p>`;
+            if (data.allergies !== undefined) html += `<p><strong>Allergies:</strong> ${data.allergies || 'N/A'}</p>`;
+            if (data.pastMedicalHistory !== undefined) html += `<p><strong>Past Medical History:</strong> ${data.pastMedicalHistory || 'N/A'}</p>`;
+            if (data.pastSurgicalHistory !== undefined) html += `<p><strong>Past Surgical History:</strong> ${data.pastSurgicalHistory || 'N/A'}</p>`;
+            if (data.pcpName !== undefined) html += `<p><strong>PCP Name:</strong> ${data.pcpName || 'N/A'}</p>`;
+            if (data.pcpContact !== undefined) html += `<p><strong>PCP Contact:</strong> ${data.pcpContact || 'N/A'}</p>`;
+            if (data.insuranceProvider !== undefined) {
+                 html += `<h4 class="font-semibold mt-3">Insurance Information:</h4>
+                          <p>Provider: ${data.insuranceProvider || 'N/A'}<br>
+                             Plan: ${data.insurancePlan || 'N/A'}<br>
+                             Policy #: ${data.insurancePolicyNumber || 'N/A'}<br>
+                             Group #: ${data.insuranceGroupNumber || 'N/A'}<br>
+                             Billing Address: ${data.billingAddress || 'N/A'}</p>`;
+            }
+
+
+            if (data.symptomCheckHistory && data.symptomCheckHistory.length > 0) {
+                html += `<h4 class="font-semibold mt-3">${T.physicianSymptomHistoryHeader || 'Symptom Check History'}:</h4><ul>`;
+                data.symptomCheckHistory.forEach(check => {
+                    const checkDate = new Date(check.date).toLocaleString();
+                    html += `<li class="border-t mt-2 pt-2">
+                        Date: ${checkDate}<br/>
+                        Main Concern: ${check.mainConcern || 'N/A'}<br/>
+                        Reported Severity: ${check.severity || 'N/A'} / 5<br/>
+                        Calculated Acuity: ${check.acuity || 'N/A'}<br/>
+                        Selected Body Part: ${check.bodyPart || 'N/A'}<br/>
+                        Recommendation Given: ${check.recommendationKey ? (translations[currentLanguage][check.recommendationKey] || check.recommendationKey) : 'N/A'}
+                    </li>`;
+                });
+                html += `</ul>`;
+            } else if (data.hasOwnProperty('symptomCheckHistory')) { // if symptomHistory was a shared section but is empty
+                 html += `<p>No symptom check history available/shared.</p>`;
+            }
+
+            physicianPatientDetailView.innerHTML = html;
+        }
+
+
+        // --- Health News Feed --- (No changes from original)
+        async function loadHealthNews() { /* ... same ... */ }
+
+        // --- Symptom Checker Logic ---
+        function renderCurrentQuestion() { /* ... same as before ... */ }
+        function saveCurrentAnswer() { /* ... same as before ... */ }
+        function nextQuestion() { /* ... same as before ... */ }
+        function previousQuestion() { /* Adapted for new flow */ }
+        function proceedToNextStage() { /* Adapted for new flow */ }
+        function handleBodyPartClick(bodyPartKey) { patientData.selectedBodyPart = bodyPartKey; proceedToNextStage(); }
+        function skipBodyDiagram() { patientData.selectedBodyPart = null; proceedToNextStage(); }
+        function parseStringToArray(str) { return str ? str.split(',').map(item => item.trim()).filter(item => item) : []; }
+        function arrayToString(arr) { return arr ? arr.join(', ') : ''; }
+        function parseMedicationString(medStrInput) { /* ... same as before ... */ }
+        function handleImageFile(event, dataUrlKey, previewElement) { /* ... same as before ... */ }
+
+        function loadProfileDataToForm() {
+            if(patientNameInput) patientNameInput.value = patientData.name;
+            if(patientAgeInput) patientAgeInput.value = patientData.age;
+            if(patientMedicationsInput) patientMedicationsInput.value = arrayToString(patientData.medications.map(m => m.raw));
+            if(patientAllergiesInput) patientAllergiesInput.value = arrayToString(patientData.allergies);
+            if(patientPMHInput) patientPMHInput.value = arrayToString(patientData.pastMedicalHistory);
+            if(patientPSHInput) patientPSHInput.value = arrayToString(patientData.pastSurgicalHistory);
+            if(pcpNameInput) pcpNameInput.value = patientData.pcpName;
+            if(pcpContactInput) pcpContactInput.value = patientData.pcpContact;
+            if(insuranceProviderInput) insuranceProviderInput.value = patientData.insuranceProvider || '';
+            if(insurancePlanInput) insurancePlanInput.value = patientData.insurancePlan || '';
+            if(insurancePolicyNoInput) insurancePolicyNoInput.value = patientData.insurancePolicyNumber || '';
+            if(insuranceGroupNoInput) insuranceGroupNoInput.value = patientData.insuranceGroupNumber || '';
+            if(billingAddressInput) billingAddressInput.value = patientData.billingAddress || '';
+
+            if (patientData.insuranceCardFrontDataUrl && insuranceCardFrontPreview) {
+                insuranceCardFrontPreview.src = patientData.insuranceCardFrontDataUrl;
+                insuranceCardFrontPreview.classList.remove('hidden');
+            } else if (insuranceCardFrontPreview) {
+                insuranceCardFrontPreview.classList.add('hidden');
+                if(insuranceCardFrontInput) insuranceCardFrontInput.value = null;
+            }
+            if (patientData.insuranceCardBackDataUrl && insuranceCardBackPreview) {
+                insuranceCardBackPreview.src = patientData.insuranceCardBackDataUrl;
+                insuranceCardBackPreview.classList.remove('hidden');
+            } else if (insuranceCardBackPreview) {
+                insuranceCardBackPreview.classList.add('hidden');
+                if(insuranceCardBackInput) insuranceCardBackInput.value = null;
+            }
+
+            if(btnSaveProfile) btnSaveProfile.textContent = translations[currentLanguage].profileChangesSaved;
+            if(btnClearProfile) btnClearProfile.classList.remove('hidden');
+            renderManageSharingUI(); // IMPORTANT: Render sharing UI when profile form is loaded
+        }
+        function saveProfileToLocalStorage() { localStorage.setItem('patientHealthCheckUserProfile_v8', JSON.stringify(patientData)); }
+        function loadProfileFromLocalStorage() {
+            const storedProfile = localStorage.getItem('patientHealthCheckUserProfile_v8');
+            if (storedProfile) {
+                const loadedData = JSON.parse(storedProfile);
+                // Preserve functions if patientData had any, then spread. For this simple object, direct assignment is fine.
+                patientData = { ...patientData, ...loadedData }; // Spread to ensure new fields are not lost if old profile is loaded
+                // Ensure array fields are initialized if not present in older stored data
+                patientData.medications = patientData.medications || [];
+                patientData.allergies = patientData.allergies || [];
+                patientData.pastMedicalHistory = patientData.pastMedicalHistory || [];
+                patientData.pastSurgicalHistory = patientData.pastSurgicalHistory || [];
+                patientData.responses = patientData.responses || {};
+                patientData.symptomCheckHistory = patientData.symptomCheckHistory || [];
+                patientData.sharingPermissions = patientData.sharingPermissions || [];
+                return true;
+            }
+            return false;
+        }
+        function clearProfileAndRestart() {
+            const confirmMsg = translations[currentLanguage].confirmClearProfile;
+            if (confirm(confirmMsg)) {
+                localStorage.removeItem('patientHealthCheckUserProfile_v8');
+                patientData = { // Reset to initial empty state, including new fields
+                    name: '', age: '', medications: [], allergies: [],
+                    pastMedicalHistory: [], pastSurgicalHistory: [],
+                    pcpName: '', pcpContact: '',
+                    insuranceProvider: '', insurancePlan: '', insurancePolicyNumber: '', insuranceGroupNumber: '', billingAddress: '',
+                    insuranceCardFrontDataUrl: null, insuranceCardBackDataUrl: null,
+                    responses: {}, selectedBodyPart: null, lastCalculatedAcuity: null,
+                    symptomCheckHistory: [], sharingPermissions: []
+                };
+                showPatientDashboard();
+            }
+        }
+
+        function saveProfileChanges() { // Renamed from saveProfileAndProceed
+            const T = translations[currentLanguage];
+            const name = patientNameInput.value.trim();
+            const ageString = patientAgeInput.value.trim();
+            if (!name || !ageString || isNaN(ageString) || parseInt(ageString) <= 0 || parseInt(ageString) > 120) {
+                showMessageBox('validationProfileError'); return;
+            }
+            patientData.name = name; patientData.age = parseInt(ageString);
+            patientData.medications = parseStringToArray(patientMedicationsInput.value).map(m => parseMedicationString(m)).filter(m => m && m.name);
+            patientData.allergies = parseStringToArray(patientAllergiesInput.value);
+            patientData.pastMedicalHistory = parseStringToArray(patientPMHInput.value);
+            patientData.pastSurgicalHistory = parseStringToArray(patientPSHInput.value);
+            patientData.pcpName = pcpNameInput.value.trim();
+            patientData.pcpContact = pcpContactInput.value.trim();
+            patientData.insuranceProvider = insuranceProviderInput.value.trim();
+            patientData.insurancePlan = insurancePlanInput.value.trim();
+            patientData.insurancePolicyNumber = insurancePolicyNoInput.value.trim();
+            patientData.insuranceGroupNumber = insuranceGroupNoInput.value.trim();
+            patientData.billingAddress = billingAddressInput.value.trim();
+            // Insurance card data is already in patientData via handleImageFile
+
+            saveProfileToLocalStorage();
+            showMessageBox(T.profileChangesSaved); // Use the generic "changes saved" message
+            // Stay on the profile page. User can navigate back to dashboard using the button.
+            renderManageSharingUI(); // Re-render sharing UI in case it depends on saved data (though not directly here)
+        }
+
+        function isTakingMedicationFromCategory(categoryKeywords) { /* ... same as before ... */ }
+        function generateMapLinks(lat, lon, query, mapLinksContainerElement) { /* ... same as before ... */ }
+
+        async function submitAnswers() {
+            if (activeQuestionSet === questionsFlow.finalGeneralRedFlags && currentQuestionIndex === activeQuestionSet.length -1) {
+                 saveCurrentAnswer(); // Save the very last answer
+            }
+            const r = patientData.responses; const severity = parseInt(r.currentSymptomSeverity); // Ensure severity is a number
+            let acuity = 'Low'; let highAcuityReasonKey = "";
+            const hasHeartDiseaseHistory = patientData.pastMedicalHistory.some(c => c.toLowerCase().includes('heart disease') || c.toLowerCase().includes('cad') || c.toLowerCase().includes('mi') || c.toLowerCase().includes('angina') || c.toLowerCase().includes('chf'));
+
+            // High Acuity Logic (copied, ensure consistency)
+            if (r.criticalChestPainNow === 'yes' || (r['chest-pain'] === 'yes' && (r.chestPainArmJaw === 'yes' || r.chestPainWithSOB === 'yes'))) { acuity = 'High'; highAcuityReasonKey = hasHeartDiseaseHistory ? 'rfReasonChestPainWithHeartHistory' : 'rfReasonChestPainComplex'; }
+            else if (r.criticalDifficultyBreathing === 'yes' || (r.breathingWheezing === 'yes' || r.breathingSudden === 'yes')) { acuity = 'High'; highAcuityReasonKey = 'rfReasonDifficultyBreathingComplex'; } // Simplified this slightly
+            else if (r.criticalConfusionLOC === 'yes') { acuity = 'High'; highAcuityReasonKey = 'rfReasonLossOfConsciousness'; }
+            else if (r.strokeFaceDroop === 'yes' || r.strokeArmWeakness === 'yes' || r.strokeSpeechDifficulty === 'yes') { acuity = 'High'; highAcuityReasonKey = 'rfReasonStrokeSymptoms'; }
+            else if (r.headacheSevereSudden === 'yes' || (r.headacheWithStiffNeckFever === 'yes') ) {acuity = 'High'; highAcuityReasonKey = 'rfReasonSevereHeadacheComplex';}
+            else if (r.abdominalPainSevere === 'yes' || r.abdominalPainComplex === 'yes') {acuity = 'High'; highAcuityReasonKey = 'rfReasonSevereAbdominalPainComplex';}
+            else if (r.allergicFaceThroatSwelling === 'yes') {acuity = 'High'; highAcuityReasonKey = 'rfReasonSevereAllergicReaction';}
+            else if (r.seizureNewConcerning === 'yes') {acuity = 'High'; highAcuityReasonKey = 'rfReasonNewConcerningSeizure';}
+            else if (r.overdosePoisoningSuspected === 'yes') {acuity = 'High'; highAcuityReasonKey = 'rfReasonOverdosePoisoning';}
+            else if (r.smokeInhalationSignificant === 'yes') {acuity = 'High'; highAcuityReasonKey = 'rfReasonSmokeInhalation';}
+            else if (r.lossOfBowelBladderControl === 'yes') {acuity = 'High'; highAcuityReasonKey = 'rfReasonLossOfControlBowelBladder';}
+            else if (r.highOrPersistentFever === 'yes') { acuity = 'High'; highAcuityReasonKey = 'rfReasonHighFever'; } // This may need refinement with severity
+
+
+            if (acuity !== 'High') {
+                const onHeartMeds = isTakingMedicationFromCategory(heartFailureKeywords) || isTakingMedicationFromCategory(antihypertensiveKeywords);
+                if (r['chest-pain'] === 'yes' && (onHeartMeds || hasHeartDiseaseHistory)) { acuity = 'High'; highAcuityReasonKey = hasHeartDiseaseHistory ? 'rfReasonChestPainWithHeartHistory' : 'rfReasonChestPainWithHeartMeds'; }
+                else if (severity === 5) { acuity = 'High'; highAcuityReasonKey = 'rfReasonGenericSevereSymptom'; }
+                else if (severity === 4) { acuity = 'Medium'; } // Adjusted: 4/5 severity often warrants medium at least
+                else if ((r['has-fever'] === 'yes' || r.highOrPersistentFever === 'yes') && severity >= 3) { acuity = 'Medium'; } // Adjusted
+                // General medium acuity triggers (keep or refine)
+                else if (severity === 3 || r['currentSymptomDuration'] === 'long' ) { acuity = 'Medium'; }
+                else if ((r['has-fever'] === 'yes') && severity >=2) {acuity = 'Medium';}
+            }
+            patientData.lastCalculatedAcuity = acuity;
+
+            // ADD TO SYMPTOM CHECK HISTORY
+            const T = translations[currentLanguage];
+            let recommendationKeyForResult = '';
+            if (acuity === 'Low') recommendationKeyForResult = 'recommendationLowAcuity';
+            else if (acuity === 'Medium') recommendationKeyForResult = 'recommendationMediumAcuity';
+            else if (acuity === 'High') recommendationKeyForResult = 'recommendationHighAcuity';
+
+            const checkEntry = {
+                date: new Date().toISOString(),
+                mainConcern: r.mainConcernSymptom || "N/A",
+                responses: { ...r }, // shallow copy
+                acuity: acuity,
+                recommendationKey: recommendationKeyForResult, // Store key for later translation
+                selectedBodyPart: patientData.selectedBodyPart,
+                severity: severity // Store the numeric severity
+            };
+            patientData.symptomCheckHistory.push(checkEntry);
+            if (patientData.symptomCheckHistory.length > 10) { // Limit history size
+                patientData.symptomCheckHistory.shift();
+            }
+            saveProfileToLocalStorage(); // Save updated patientData
+
+            // ... (rest of submitAnswers logic for displaying results, advice, map links as before) ...
+            // Make sure this part is complete and correct based on original code.
+            let acuityText = T.acuityLevelText.replace('{level}', acuity);
+            if (highAcuityReasonKey && acuity === 'High' && T[highAcuityReasonKey]) {
+                 acuityText += `<br><small>${T.acuityReasonText.replace('{reason}', T[highAcuityReasonKey])}</small>`;
+            }
+            if(acuityLevelPara) acuityLevelPara.innerHTML = acuityText;
+
+            if(resultSection) resultSection.className = 'acuity-result'; // Reset classes
+            if(urgentCareInfoDiv) urgentCareInfoDiv.classList.add('hidden');
+            if(pcpInfoDisplayDiv) pcpInfoDisplayDiv.classList.add('hidden');
+            if(mediumAcuityResourceSuggestions) mediumAcuityResourceSuggestions.classList.add('hidden');
+            if(selfCareAdviceSection) selfCareAdviceSection.classList.add('hidden');
+            if(selfCareAdviceContent) selfCareAdviceContent.innerHTML = '';
+            if(mediumRetailClinicsMapLinks) mediumRetailClinicsMapLinks.innerHTML = '';
+            if(mediumUrgentCaresMapLinks) mediumUrgentCaresMapLinks.innerHTML = '';
+            if(urgentCareMapLinksContainer) urgentCareMapLinksContainer.innerHTML = '';
+
+            let recommendation = T[recommendationKeyForResult] || "No specific recommendation available.";
+            let pcpStatement = '';
+            if (patientData.pcpName) {
+                let pcpKey = patientData.pcpContact ? 'pcpInfoPreamble' : 'pcpInfoPreambleNoContact';
+                pcpStatement = T[pcpKey].replace('{pcpName}', patientData.pcpName).replace('{pcpContact}', patientData.pcpContact || '');
+            }
+
+            if (acuity === 'Low') {
+                if(resultSection) resultSection.classList.add('low-acuity');
+                if (pcpStatement) recommendation += pcpStatement + T.pcpLowAcuityInform;
+                let adviceHTML = ""; let adviceGiven = false; const T_advice = T.selfCareAdvice;
+                if ((r['has-fever'] === 'yes' || r['highOrPersistentFever'] === 'yes') && severity <= 2) { adviceHTML += T_advice.advice_fever; adviceGiven = true; }
+                // Add more specific advice based on symptoms if desired
+                if (!adviceGiven && T_advice.advice_generalLowAcuity) { adviceHTML += T_advice.advice_generalLowAcuity; }
+                if (adviceHTML && selfCareAdviceContent && selfCareAdviceSection) {
+                    selfCareAdviceContent.innerHTML = adviceHTML; selfCareAdviceSection.classList.remove('hidden');
+                }
+            } else if (acuity === 'Medium') {
+                if(resultSection) resultSection.classList.add('medium-acuity');
+                if(mediumAcuityResourceSuggestions) mediumAcuityResourceSuggestions.classList.remove('hidden');
+                if(mediumAcuityResourceHeader) mediumAcuityResourceHeader.textContent = T.mediumAcuityResourceHeader;
+                if(mediumPcpDetails) mediumPcpDetails.textContent = pcpStatement ? pcpStatement.substring(1) + T.pcpMediumAcuityInform : T.mediumPCPInfoDefault;
+                if(mediumRetailClinicsText) mediumRetailClinicsText.textContent = T.retailClinicsInfoText;
+                if(mediumUrgentCaresText) mediumUrgentCaresText.textContent = T.urgentCaresInfoText;
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const lat = position.coords.latitude; const lon = position.coords.longitude;
+                            if(mediumRetailClinicsMapLinks) generateMapLinks(lat, lon, "retail clinic", mediumRetailClinicsMapLinks);
+                            if(mediumUrgentCaresMapLinks) generateMapLinks(lat, lon, "urgent care", mediumUrgentCaresMapLinks);
+                        },
+                        () => { /* Error handling */
+                            if(mediumRetailClinicsMapLinks) generateMapLinks(null, null, "retail clinic", mediumRetailClinicsMapLinks);
+                            if(mediumUrgentCaresMapLinks) generateMapLinks(null, null, "urgent care", mediumUrgentCaresMapLinks);
+                        }, {timeout:10000}
+                    );
+                } else { /* Geolocation not supported */
+                     if(mediumRetailClinicsMapLinks) generateMapLinks(null, null, "retail clinic", mediumRetailClinicsMapLinks);
+                     if(mediumUrgentCaresMapLinks) generateMapLinks(null, null, "urgent care", mediumUrgentCaresMapLinks);
+                }
+            } else { // High Acuity
+                if(resultSection) resultSection.classList.add('high-acuity');
+                if(urgentCareInfoDiv && urgentCareTextDefault) {
+                    urgentCareInfoDiv.classList.remove('hidden');
+                    urgentCareTextDefault.innerHTML = T.geolocationAttempting;
+                }
+                if (pcpStatement && pcpInfoDisplayDiv) {
+                    let pcpUrgentKey = patientData.pcpContact ? 'pcpInfoForUrgentCare' : 'pcpInfoForUrgentCareNoContact';
+                    pcpInfoDisplayDiv.textContent = T[pcpUrgentKey].replace('{pcpName}', patientData.pcpName).replace('{pcpContact}', patientData.pcpContact || '');
+                    pcpInfoDisplayDiv.classList.remove('hidden');
+                }
+                if (navigator.geolocation && urgentCareTextDefault && urgentCareMapLinksContainer) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => { /* Success */
+                            const lat = position.coords.latitude; const lon = position.coords.longitude;
+                            urgentCareTextDefault.innerHTML = T.geolocationSuccess.replace('{lat}',lat.toFixed(2)).replace('{lon}',lon.toFixed(2));
+                            generateMapLinks(lat, lon, "emergency room", urgentCareMapLinksContainer);
+                        },
+                        (error) => { /* Error */
+                            let geoMsg = T.geolocationErrorBase;
+                            switch(error.code) {
+                                case error.PERMISSION_DENIED: geoMsg += T.geolocationErrorPermissionDenied; break;
+                                case error.POSITION_UNAVAILABLE: geoMsg += T.geolocationErrorPositionUnavailable; break;
+                                case error.TIMEOUT: geoMsg += T.geolocationErrorTimeout; break;
+                                default: geoMsg += T.geolocationErrorUnknown; break;
+                            }
+                            urgentCareTextDefault.textContent = geoMsg + T.geolocationManualSearch;
+                            generateMapLinks(null, null, "emergency room", urgentCareMapLinksContainer);
+                        }, {timeout:10000}
+                    );
+                } else if (urgentCareTextDefault && urgentCareMapLinksContainer) { /* No geolocation support */
+                     urgentCareTextDefault.textContent = T.geolocationNotSupported;
+                     generateMapLinks(null, null, "emergency room", urgentCareMapLinksContainer);
+                }
+            }
+            if(recommendationPara) recommendationPara.innerHTML = recommendation; // Use innerHTML if recommendation contains <br> from acuity reason
+            switchAppSection('result-section');
+        }
+
+
+        function startOverFromResults() {
+            patientData.responses = {};
+            patientData.selectedBodyPart = null;
+            // patientData.lastCalculatedAcuity is kept as it's part of the patient's general record now
+            currentQuestionIndex = 0;
+            activeQuestionSet = [];
+            if(singleQuestionContainer) singleQuestionContainer.innerHTML = '';
+            if(acuityLevelPara) acuityLevelPara.textContent = '';
+            if(recommendationPara) recommendationPara.textContent = '';
+            showPatientDashboard();
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            getAllDOMElements();
+            if(langToggleBtn) langToggleBtn.addEventListener('click', toggleLanguage);
+            // Load profile first, so `patientData` is populated for translations that might use it (e.g. welcome message)
+            // and for initial rendering of manage sharing UI.
+            loadProfileFromLocalStorage();
+            applyTranslations(); // Apply translations AFTER profile load
+            switchAppSection('login-section');
+        });
+    </script>
+</body>
+</html>
